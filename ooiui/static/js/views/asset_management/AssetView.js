@@ -227,15 +227,16 @@ var AssetCreatorModalView = ParentAssetView.extend({
         newAsset.set('classCode', this.$el.find('#assetClassCode').val());
         newAsset.set('seriesClassification', this.$el.find('#assetSeriesClassification').val());
         console.log(newAsset);
-        newAsset.save({},{
+        newAsset.save(null,{
             //TODO: Display feed back for each
             success: function(){
-                vent.trigger('asset:changeCollection');
+
             },
             error: function() {
                 console.log('Error: Cannot save asset!');
             }
         });
+        vent.trigger('asset:changeCollection');
         this.cleanUp();
         newAsset.off();
     },
@@ -284,16 +285,17 @@ var AssetEditorModalView = ParentAssetView.extend({
         this.model.set('asset_class', this.$el.find('#assetClass').val());
         this.model.set('classCode', this.$el.find('#assetClassCode').val());
         this.model.set('assetInfo', assetInfo);
-        this.model.save({}, {
+        this.model.save(null, {
             //TODO: Display feed back for each
             success: function(){
-                vent.trigger('asset:modelChange', this.model);
+
             },
             error: function() {
-                console.log('Error: Cannot edit asset!');
+
             }
         });
         this.model.fetch();
+        vent.trigger('asset:modelChange', this.model);
         this.cleanUp();
     },
     cancel: function() {
