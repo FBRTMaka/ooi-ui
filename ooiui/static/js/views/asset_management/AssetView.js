@@ -155,7 +155,7 @@ var AssetCreatorModalView = ParentAssetView.extend({
      */
     template: JST['ooiui/static/js/partials/AssetCreatorModal.html'],
     initialize: function() {
-        _.bindAll(this, 'save', 'cancel', 'setupFields', 'validateFields');
+        _.bindAll(this, 'save', 'cancel', 'setupFields');
     },
     events: {
         "click button#cancel" : "cancel",
@@ -163,41 +163,6 @@ var AssetCreatorModalView = ParentAssetView.extend({
     },
     setupFields: function() {
         this.$el.find('#assetLaunchDate').datepicker();
-    },
-    validateFields: function() {
-        /* TODO:
-         * 1. assetInfo: Required (all)
-         *      a. name: Valid Char ( - , A-Z , a-z , 0-9 )
-         *      b. owner: Valid Char ( - , A-Z , a-z , 0-9 )
-         *      c. description: Valid Char ( - , A-Z , a-z , 0-9 )
-         *      d. type: Selected
-         * 2. manufactureInfo: Optional (all)
-         *      a. manufacturer: Valid Char ( - , A-Z , a-z )
-         *      b. modelNumber:  Valid Char ( - , A-Z , 0-9 )
-         *      c. serialNumber:  Valid Char ( - , A-Z , 0-9)
-         * 3. metaData: Required (all)
-         *      a. Ref Des: Valid Char ( - , A-Z , 0-9 )
-         *      b. Anchor Launch Date: Not future.
-         *      c. Anchor Launch Time: 24hr format, not future.
-         *      d. Latitude: Decimal Degree, DegreeMinutes, Degree Minutes Seconds
-         *      e. Longitutde: Decimal Degree, DegreeMinutes, Degree Minutes Seconds
-         *          - Actually map the input and return approx location
-         *            below input fields (non modifiable text field).
-         *      f. Water Depth: Valid Char ( m, 0-9 )
-         * 4. assetClassCode: String Length, Valid Char (A-Z, 0-9)
-         * 5. assetNotes: Valid Char (A-Z, a-z, 0-9, . , (comma) , - )
-         * 6. purchaseAndDeliveryInfo: Valid Char (A-Z, a-z, 0-9, . , (comma) , - , $ )
-         * 7. assetClass: Selected
-         * 8. assetSeriesClassification: <Unknown> ... leave out for now.
-         *
-         * Once Complete, change 'events:'
-         *  from:
-         *      "click button#save" : "save"
-         *  to:
-         *      "click button#save" : "validate",
-         *
-         * Then call this.save() at the successful validation.
-         */
     },
     save: function() {
         // TODO: This entire function should be called
@@ -262,9 +227,13 @@ var AssetCreatorModalView = ParentAssetView.extend({
         newAsset.set('classCode', this.$el.find('#assetClassCode').val());
         newAsset.set('seriesClassification', this.$el.find('#assetSeriesClassification').val());
         console.log(newAsset);
-        newAsset.save({
+        newAsset.save({},{
+            //TODO: Display feed back for each
             success: function(){
                 vent.trigger('asset:changeCollection');
+            },
+            error: function() {
+                console.log('Error: Cannot save asset!');
             }
         });
         this.cleanUp();
@@ -315,12 +284,16 @@ var AssetEditorModalView = ParentAssetView.extend({
         this.model.set('asset_class', this.$el.find('#assetClass').val());
         this.model.set('classCode', this.$el.find('#assetClassCode').val());
         this.model.set('assetInfo', assetInfo);
-        this.model.save({
+        this.model.save({}, {
+            //TODO: Display feed back for each
             success: function(){
-                this.model.fetch();
                 vent.trigger('asset:modelChange', this.model);
+            },
+            error: function() {
+                console.log('Error: Cannot edit asset!');
             }
         });
+        this.model.fetch();
         this.cleanUp();
     },
     cancel: function() {
